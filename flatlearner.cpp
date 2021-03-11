@@ -47,6 +47,7 @@ void FlatLearner::save(std::filesystem::path file_path) const
     }
 
 }
+
 void FlatLearner::load(std::filesystem::path file_path)
 {
     std::ifstream input(file_path);

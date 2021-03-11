@@ -1,15 +1,15 @@
-#ifndef NEURAL_NET
-#define NEURAL_NET
+#ifndef RL_MODEL
+#define RL_MODEL
 
 #include "reasoner.hpp"
 #include <vector>
 #include <filesystem>
 #include <sys/types.h>
 
-class NeuralNet 
+class RLModel 
 {
 public:
-    NeuralNet() {};
+    RLModel() {};
     virtual float eval(const reasoner::game_state& game_state) const = 0;
     virtual void update(const std::vector< std::pair<const reasoner::game_state&, float> >& to_learn) = 0;
     virtual void save(std::filesystem::path file_path) const {};
