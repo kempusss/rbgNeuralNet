@@ -12,8 +12,8 @@ public:
     RLModel() {};
     virtual float eval(const reasoner::game_state& game_state) const = 0;
     virtual void update(const std::vector< std::pair<const reasoner::game_state&, float> >& to_learn) = 0;
-    virtual void save(std::filesystem::path file_path) const {};
-    virtual void load(std::filesystem::path file_path);
+    virtual void save(std::filesystem::path file_path) const = 0;
+    virtual void load(std::filesystem::path file_path) = 0;
 };
 
 #endif
