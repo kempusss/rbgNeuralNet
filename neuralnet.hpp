@@ -3,7 +3,9 @@
 
 #include "rl_model.hpp"
 #include "net_module.hpp"
+#include "state_parser.hpp"
 #include <memory>
+#include <type_traits>
 #include <stdexcept>
 #include <torch/torch.h>
 
@@ -18,6 +20,7 @@ public:
     NeuralNet(std::unique_ptr<NetModule> net, bool on_GPU = false)
         : net(std::move(net)), device(torch::kCPU)
     {
+        static_assert(std::is_base_of_v<StateParser, Parser>, "Parser must inherit from interface StateParser");
         if (!this->net) 
         {
             throw std::logic_error("Net must be initalized before loading");
