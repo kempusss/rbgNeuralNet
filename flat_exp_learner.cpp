@@ -1,12 +1,12 @@
-#include "flatlearner.hpp"
+#include "flat_exp_learner.hpp"
 #include <fstream>
 
-FlatLearner::FlatLearner(float smoothingRate)
+FlatExpLearner::FlatExpLearner(float smoothingRate)
     : smoothingRate(smoothingRate)
 {
 }
 
-float FlatLearner::eval(const reasoner::game_state& game_state) const
+float FlatExpLearner::eval(const reasoner::game_state& game_state) const
 {
     float score = 0;
     for(int cellId = 0; cellId < reasoner::BOARD_SIZE; ++cellId)
@@ -18,7 +18,7 @@ float FlatLearner::eval(const reasoner::game_state& game_state) const
 }
 
 
-void FlatLearner::update(const std::vector< std::pair<const reasoner::game_state&, float> >& to_learn)
+void FlatExpLearner::update(const std::vector< std::pair<const reasoner::game_state&, float> >& to_learn)
 {
     for(auto& [state, score] : to_learn)
     {
@@ -27,7 +27,7 @@ void FlatLearner::update(const std::vector< std::pair<const reasoner::game_state
 
 }
 
-void FlatLearner::update(const reasoner::game_state& state, float score)
+void FlatExpLearner::update(const reasoner::game_state& state, float score)
 {    
     for(int cellId = 0; cellId < reasoner::BOARD_SIZE; ++cellId)
     {
@@ -39,7 +39,7 @@ void FlatLearner::update(const reasoner::game_state& state, float score)
 }
 
 
-void FlatLearner::save(std::filesystem::path file_path) const
+void FlatExpLearner::save(std::filesystem::path file_path) const
 {
     std::ofstream output(file_path);
 
@@ -55,7 +55,7 @@ void FlatLearner::save(std::filesystem::path file_path) const
 
 }
 
-void FlatLearner::load(std::filesystem::path file_path)
+void FlatExpLearner::load(std::filesystem::path file_path)
 {
     std::ifstream input(file_path);
 

@@ -1,6 +1,7 @@
 #include "shallownet.hpp"
 #include "neuralnet.hpp"
 #include "state_parser.hpp"
+#include "flat_exp_learner.hpp"
 #include <torch/torch.h>
 #include <iostream>
 #include <vector>
@@ -44,6 +45,9 @@ int main()
     net2.load("siema.pt");
 
     std::cout << net.forward(XORdataset) << std::endl;
+
+
+    FlatExpLearner learnerExp(0.5);
 
     return 0;
 }
