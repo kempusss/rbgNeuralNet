@@ -2,6 +2,7 @@
 #include "neuralnet.hpp"
 #include "state_parser.hpp"
 #include "flat_exp_learner.hpp"
+#include "flat_mean_learner.hpp"
 #include <torch/torch.h>
 #include <iostream>
 #include <vector>
@@ -48,6 +49,11 @@ int main()
 
 
     FlatExpLearner learnerExp(0.5);
+    learnerExp.save("learn_exp.txt");
+    learnerExp.load("learn_exp.txt");
+    FlatMeanLearner learnerMean;
+    learnerMean.save("learn_mean.txt");
+    learnerMean.load("learn_mean.txt");
 
     return 0;
 }

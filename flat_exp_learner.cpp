@@ -43,7 +43,7 @@ void FlatExpLearner::save(std::filesystem::path file_path) const
 {
     std::ofstream output(file_path);
 
-    output << smoothingRate;
+    output << smoothingRate << '\n';
     for(const auto& cell_scores : scores)
     {
         for(auto piece_score : cell_scores)
