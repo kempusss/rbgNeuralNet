@@ -1,6 +1,6 @@
 #include "shallownet.hpp"
 #include "neuralnet.hpp"
-#include "state_parser.hpp"
+#include "default_state_parser.hpp"
 #include "flat_exp_learner.hpp"
 #include "flat_mean_learner.hpp"
 #include "reasoner.hpp"
@@ -81,6 +81,7 @@ void testParser()
     }
 
     std::cout << DefaultStateParser::parse_game_state(state, torch::kCPU) << std::endl;
+    return;
 
     std::vector< std::pair<std::reference_wrapper<const reasoner::game_state>, float> > temp;
 
@@ -111,7 +112,7 @@ void testParser()
     std::cout << learnerMean.eval(state) << std::endl;
     std::cout << learnerMean.eval(otherstate) << std::endl;
 
-    NeuralNet<DefaultStateParser> net(std::make_unique<ShallowNet>(9 * 3, 100), true);
+    NeuralNet<DefaultStateParser> net(std::make_unique<ShallowNet>(DefaultStateParser::input_size(), 100), true);
 
     for(int i = 0; i < 10000; ++i)
         net.update(temp);

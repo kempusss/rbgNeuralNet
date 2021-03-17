@@ -8,7 +8,7 @@ float FlatMeanLearner::eval(const reasoner::game_state& game_state) const
     for(int cellId = 0; cellId < reasoner::BOARD_SIZE; ++cellId)
     {
         int pieceId = game_state.get_piece(cellId);
-        score += scores[cellId][pieceId];
+        score += scores[cellId][pieceId] / reasoner::BOARD_SIZE;
     }
     return score;
 }

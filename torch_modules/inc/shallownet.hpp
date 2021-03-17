@@ -1,7 +1,6 @@
 #ifndef SHALLOW_NET
 #define SHALLOW_NET
 
-#include "reasoner.hpp"
 #include "net_module.hpp"
 #include <torch/torch.h>
 

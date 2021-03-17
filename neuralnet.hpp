@@ -3,7 +3,7 @@
 
 #include "rl_model.hpp"
 #include "net_module.hpp"
-#include "state_parser.hpp"
+#include "default_state_parser.hpp"
 #include <memory>
 #include <type_traits>
 #include <stdexcept>
@@ -26,6 +26,7 @@ public:
           optimizer(std::make_unique<torch::optim::SGD>(this->net->parameters(), learning_rate))
     {
         static_assert(std::is_base_of_v<DefaultStateParser, Parser>, "Parser must inherit from interface StateParser");
+        
         if (!this->net) 
         {
             throw std::logic_error("Net must be initalized before loading");
@@ -63,13 +64,11 @@ public:
             targets[i] = to_learn[i].second;
         }
 
-        auto options = torch::TensorOptions().dtype(torch::kFloat32).device(device).requires_grad(true);
+        auto options = torch::TensorOptions().dtype(torch::kFloat32).requires_grad(true);
 
         torch::Tensor input = torch::stack(game_states, 0);
 
-        //std::cout << input.device() << std::endl;
-        torch::Tensor output = torch::from_blob(targets.data(), {(int)targets.size(), 1}, options);
-        //std::cout << output.device() << std::endl;
+        torch::Tensor output = torch::from_blob(targets.data(), {(int)targets.size(), 1}, options).to(device);
 
         optimizer->zero_grad();
         torch::Tensor predictions = net->forward(input);
