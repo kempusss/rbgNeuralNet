@@ -6,7 +6,10 @@
 
 class StateParser
 {
-    static torch::Tensor parseGameState(const reasoner::game_state& game_state, torch::Device device);
+public:
+    static torch::Tensor parseGameState(
+        const reasoner::game_state& game_state, 
+        torch::Device device);
 };
 
 #endif  

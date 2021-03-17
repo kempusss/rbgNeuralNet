@@ -2,31 +2,38 @@
 #define NEURAL_NET
 
 #include "rl_model.hpp"
+#include "net_module.hpp"
 #include <memory>
 #include <stdexcept>
-
 #include <torch/torch.h>
 
 template<class Parser>
 class NeuralNet : public RLModel
 {
 private:
-    std::unique_ptr<torch::nn::Module> net;
+    std::unique_ptr<NetModule> net;
     torch::Device device;
 
 public:
-    NeuralNet(std::unique_ptr<torch::nn::Module> net, bool on_GPU = false);
-        : net(net), device(torch::kCPU)
+    NeuralNet(std::unique_ptr<NetModule> net, bool on_GPU = false)
+        : net(std::move(net)), device(torch::kCPU)
     {
+        if (!this->net) 
+        {
+            throw std::logic_error("Net must be initalized before loading");
+        }
+
         if(on_GPU)
         {
             if(torch::cuda::is_available())
-            { 
-                device = torch::Device(torch::kGPu);
+            {
+                device = torch::Device(torch::kCUDA);
+                this->net->to(device);
+                std::cout << "Neural net moved to GPU!" << std::endl;
             }
             else
             {
-                throw logic_error("GPU is not available!");
+                throw std::logic_error("GPU is not available!");
             }
         }
     }
@@ -34,7 +41,7 @@ public:
     float eval(const reasoner::game_state& game_state) const override
     {
         auto inputTensor = Parser::parseGameState(game_state, device);
-        return net->forward(inputTensor);
+        return (net->forward(inputTensor)).item().toFloat();
     }
 
     void update(const std::vector< std::pair<const reasoner::game_state&, float> >& to_learn) override
@@ -42,19 +49,42 @@ public:
         // TODO
     }
 
-    void save(std::filesystem::path file_path) override
+    void save(std::filesystem::path file_path) const override
     {
-        torch::save(*net, file_path);
+        torch::serialize::OutputArchive output_archive;
+        net->save(output_archive);
+        output_archive.save_to(file_path);
     }
 
     void load(std::filesystem::path file_path) override
     {
-        if (net == nullptr) 
+        torch::serialize::InputArchive archive;
+        archive.load_from(file_path);
+        net->load(archive);
+        net->to(device);
+    }
+
+    torch::Tensor forward(torch::Tensor x)
+    {
+        x = x.to(device);
+        return net->forward(x);
+    }
+
+    void train(torch::Tensor input, torch::Tensor target, float learning_rate = 0.01f, int iters = 100)
+    {
+        input = input.to(device);
+        target = target.to(device);
+
+        torch::optim::SGD optimizer(net->parameters(), learning_rate);
+
+        for(int i = 0; i < iters; ++i)
         {
-            throw logic_error("Net must be initalized before loading");
+            optimizer.zero_grad();
+            torch::Tensor pred = forward(input);
+            torch::Tensor loss = torch::mse_loss(pred, target);
+            loss.backward();
+            optimizer.step();
         }
-        
-        torch::load(*net, file_path);
     }
 };
 
