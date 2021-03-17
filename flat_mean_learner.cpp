@@ -14,9 +14,9 @@ float FlatMeanLearner::eval(const reasoner::game_state& game_state) const
 }
 
 
-void FlatMeanLearner::update(const std::vector< std::pair<const reasoner::game_state&, float> >& to_learn)
+void FlatMeanLearner::update(const std::vector< std::pair<std::reference_wrapper<const reasoner::game_state>, float> >& to_learn)
 {
-    for(auto& [state, score] : to_learn)
+    for(const auto& [state, score] : to_learn)
     {
         update(state, score);
     }

@@ -4,12 +4,14 @@
 #include <torch/torch.h>
 #include "reasoner.hpp"
 
-class StateParser
+class DefaultStateParser
 {
 public:
-    static torch::Tensor parseGameState(
+    static torch::Tensor parse_game_state(
         const reasoner::game_state& game_state, 
         torch::Device device);
+
+    static constexpr int input_channels();
 };
 
 #endif  

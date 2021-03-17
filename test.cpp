@@ -3,11 +3,12 @@
 #include "state_parser.hpp"
 #include "flat_exp_learner.hpp"
 #include "flat_mean_learner.hpp"
+#include "reasoner.hpp"
 #include <torch/torch.h>
 #include <iostream>
 #include <vector>
 
-int main()
+void XORtest()
 {
     torch::Device device(torch::kCPU);
 
@@ -21,9 +22,9 @@ int main()
     std::cout << "Dataset:" << std::endl;
     std::cout << XORdataset.to(at::kCUDA) << std::endl;
 
-    NeuralNet<StateParser> net(std::make_unique<ShallowNet>(2,10), true);
+    NeuralNet<DefaultStateParser> net(std::make_unique<ShallowNet>(2,10), true);
     std::cout << "Network initialized" << std::endl;
-    net.train(XORdataset, XORtarget, 0.02, 100000);
+    net.train(XORdataset, XORtarget, 100000);
 
     std::vector <torch::Tensor> tensory;
 
@@ -41,19 +42,92 @@ int main()
 
     net.save("siema.pt");
 
-    NeuralNet<StateParser> net2(std::make_unique<ShallowNet>(2, 10), false);
+    NeuralNet<DefaultStateParser> net2(std::make_unique<ShallowNet>(2, 10), false);
 
     net2.load("siema.pt");
 
     std::cout << net.forward(XORdataset) << std::endl;
+}
 
-
+void testFlatLeaners()
+{
     FlatExpLearner learnerExp(0.5);
     learnerExp.save("learn_exp.txt");
     learnerExp.load("learn_exp.txt");
     FlatMeanLearner learnerMean;
     learnerMean.save("learn_mean.txt");
     learnerMean.load("learn_mean.txt");
+}
+
+void testParser()
+{
+    reasoner::game_state state;
+    reasoner::resettable_bitarray_stack wtf;
+
+    for(int i = 0; i < 5; ++i)
+        state.apply_any_move(wtf);
+
+    auto otherstate = state;
+    for(int i = 0; i < 5; ++i)
+        otherstate.apply_any_move(wtf);
+
+    for(int i = 0; i < 3; ++i)
+    {
+        for(int j = 0; j < 3; ++j)
+        {
+            std::cout << state.get_piece(3 * i + j) << ' ';
+        }
+        std::cout << std::endl;
+    }
+
+    std::cout << DefaultStateParser::parse_game_state(state, torch::kCPU) << std::endl;
+
+    std::vector< std::pair<std::reference_wrapper<const reasoner::game_state>, float> > temp;
+
+    for(int i = 0; i < 3; ++i)
+    {
+        temp.push_back({state, 0.8});
+    }
+
+
+    FlatExpLearner learnerExp(0.5);
+    learnerExp.update(temp);
+    std::cout << learnerExp.eval(state) << std::endl;
+
+    FlatMeanLearner learnerMean;
+    learnerMean.update(temp);
+    std::cout << learnerMean.eval(state) << std::endl;
+    
+    for(int i = 0; i < 3; ++i)
+    {
+        temp.push_back({otherstate, 0.4});
+    }
+
+    learnerExp.update(temp);
+    std::cout << learnerExp.eval(state) << std::endl;
+    std::cout << learnerExp.eval(otherstate) << std::endl;
+
+    learnerMean.update(temp);
+    std::cout << learnerMean.eval(state) << std::endl;
+    std::cout << learnerMean.eval(otherstate) << std::endl;
+
+    NeuralNet<DefaultStateParser> net(std::make_unique<ShallowNet>(9 * 3, 100), true);
+
+    for(int i = 0; i < 10000; ++i)
+        net.update(temp);
+
+    std::cout << "Training completed!" << std::endl;
+
+    std::cout << net.eval(state) << std::endl;
+    std::cout << net.eval(otherstate) << std::endl;
+
+
+}
+
+int main()
+{
+    testParser();
+
 
     return 0;
 }

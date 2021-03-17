@@ -18,7 +18,7 @@ public:
     FlatExpLearner(float smoothingRate);
 
     float eval(const reasoner::game_state& game_state) const override;
-    void update(const std::vector< std::pair<const reasoner::game_state&, float> >& to_learn) override;
+    void update(const std::vector< std::pair<std::reference_wrapper<const reasoner::game_state>, float> >& to_learn) override;
 
     void save(std::filesystem::path file_path) const override;
     void load(std::filesystem::path file_path) override;
