@@ -1,5 +1,5 @@
-#ifndef FLAT_LEARNER
-#define FLAT_LEARNER
+#ifndef FLAT_EXP_LEARNER
+#define FLAT_EXP_LEARNER
 
 #include "reasoner.hpp"
 #include "rl_model.hpp"
